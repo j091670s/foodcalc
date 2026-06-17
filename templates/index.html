@@ -4,38 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Food Calorie Tracker</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #222; }
-    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1.8rem; margin-bottom: 1.5rem; }
-    h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; color: #444; }
-    .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-    .drop-zone { border: 2px dashed #ccc; border-radius: 6px; padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s; }
-    .drop-zone:hover { border-color: #888; }
-    .drop-zone p { color: #666; }
-    .drop-zone small { color: #aaa; }
-    input[type="file"] { display: none; }
-    #preview { max-width: 200px; max-height: 200px; margin: 1rem auto 0; display: none; border-radius: 4px; }
-    .btn { background: #2563eb; color: white; border: none; padding: 0.6rem 1.4rem; border-radius: 6px; cursor: pointer; font-size: 1rem; margin-top: 1rem; float: right; }
-    .btn:hover { background: #1d4ed8; }
-    .flash { background: #fef9c3; border: 1px solid #fde047; padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
-    .result-stats { display: flex; gap: 1rem; margin-bottom: 1rem; }
-    .stat { background: #eff6ff; border-radius: 6px; padding: 0.75rem 1.25rem; }
-    .stat .label { font-size: 0.8rem; color: #555; }
-    .stat .value { font-size: 1.4rem; font-weight: 700; color: #2563eb; }
-    .stat .value.food { font-size: 1rem; margin-top: 2px; }
-    .analysis-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 1rem; white-space: pre-wrap; font-size: 0.88rem; line-height: 1.65; }
-    .progress-bar { background: #e5e7eb; border-radius: 99px; height: 12px; margin: 0.5rem 0 0.25rem; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 99px; background: #22c55e; transition: width 0.4s; }
-    .progress-fill.over { background: #ef4444; }
-    .progress-label { font-size: 0.85rem; color: #555; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-    th { font-weight: 600; color: #555; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }
-    .empty { color: #aaa; text-align: center; padding: 1.5rem; font-size: 0.9rem; }
-    .clearfix::after { content: ''; display: table; clear: both; }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <div class="container">
@@ -46,14 +15,14 @@
   {% endfor %}
 
   <div class="card">
-    <h2>Scan a Meal</h2>
+    <h2>Enter a Meal</h2>
     <form method="post" action="/scan" enctype="multipart/form-data" class="clearfix">
       <label class="drop-zone" for="photo" id="dropZone">
-        <p>Click to upload a photo</p>
+        <p>Click or drag & drop a photo</p>
         <small>JPG or PNG</small>
         <img id="preview" alt="preview">
       </label>
-      <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" onchange="previewPhoto(this)">
+      <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png">
       <button type="submit" class="btn">Analyze</button>
     </form>
   </div>
@@ -76,51 +45,117 @@
   {% endif %}
 
   <div class="card">
-    <h2>Today's Log</h2>
-    {% set pct = [total * 100 // goal, 100] | min %}
-    <div class="progress-bar">
-      <div class="progress-fill {% if total > goal %}over{% endif %}" style="width: {{ pct }}%"></div>
-    </div>
-    <div class="progress-label">
-      <strong>{{ total }}</strong> / {{ goal }} cal &mdash;
-      {% if total <= goal %}{{ goal - total }} remaining{% else %}<span style="color:#ef4444">{{ total - goal }} over goal</span>{% endif %}
-    </div>
+  <h2>Today's Log</h2>
 
-    {% if entries %}
-    <table>
-      <thead>
-        <tr><th>Time</th><th>Food</th><th>Cal</th></tr>
-      </thead>
-      <tbody>
-        {% for e in entries %}
-        <tr>
-          <td>{{ e.timestamp[11:16] }}</td>
-          <td>{{ e.food }}</td>
-          <td>{{ e.calories }}</td>
-        </tr>
-        {% endfor %}
-        <tr style="font-weight:600; border-top: 2px solid #ddd;">
-          <td></td><td>Total</td><td>{{ total }}</td>
-        </tr>
-      </tbody>
-    </table>
+  {% set pct = total * 100 // goal %}
+  {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+
+  <div class="progress-bar">
+    <div class="progress-fill {% if total > goal %}over{% endif %}" style="width: {{ pct }}%"></div>
+  </div>
+
+  <div class="progress-label">
+    <strong>{{ total }}</strong> / {{ goal }} cal &mdash;
+    {% if total|default(0) <= goal|default(2000) %}
+      {{ goal - total }} remaining
     {% else %}
-    <p class="empty">No meals logged today.</p>
+      <span style="color:#ef4444">{{ total - goal }} over goal</span>
     {% endif %}
   </div>
+
+  {% if entries %}
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Food</th><th>Cal</th></tr>
+    </thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td>{{ e.timestamp[11:16] }}</td>
+        <td>{{ e.food }}</td>
+        <td>{{ e.calories }}</td>
+      </tr>
+      {% endfor %}
+      <tr style="font-weight:600; border-top: 2px solid #ddd;">
+        <td></td><td>Total</td><td>{{ total }}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No meals logged today.</p>
+  {% endif %}
 </div>
 
 <script>
-function previewPhoto(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = document.getElementById('preview');
-      img.src = e.target.result;
-      img.style.display = 'block';
-    };
-    reader.readAsDataURL(input.files[0]);
+const dropZone = document.getElementById("dropZone");
+const fileInput = document.getElementById("photo");
+const preview = document.getElementById("preview");
+
+dropZone.addEventListener("click", () => fileInput.click());
+
+// Allows dropping 
+dropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+// Removes highlight when mouse leaves the box, aka visual clean up
+// might not need this 
+// dropZone.addEventListener("dragleave", () => {
+//   dropZone.classList.remove("dragover");
+// });
+
+
+// Sends file to input 
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  dropZone.classList.remove("dragover");
+
+  fileInput.files = e.dataTransfer.files;
+  handleFile();
+});
+
+//For command + V upload
+document.addEventListener("paste", (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  for (let item of items) {
+    if (item.type.indexOf("image") === -1) continue;
+
+    const file = item.getAsFile();
+    if (!file) return;
+
+    fileInput.files = createFileList(file);
+    handleFile();
+
   }
+});
+
+fileInput.addEventListener("change", handleFile);
+
+function handleFile() {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.src = e.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+}
+
+// for command + V
+function createFileList(file) {
+  //creates empty file container
+  const dataTransfer = new DataTransfer();
+  //puts file inside it 
+  dataTransfer.items.add(file);
+  //extract it as a FileList
+  return dataTransfer.files;
 }
 </script>
 </body>
