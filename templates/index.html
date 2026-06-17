@@ -20,7 +20,7 @@
       <label class="drop-zone" for="photo" id="dropZone">
         <p>Click or drag & drop a photo</p>
         <small>JPG or PNG</small>
-        <img id="preview" alt="preview">
+        <img id="preview" alt="preview" onclick="event.stopPropagation();">
       </label>
       <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png">
       <button type="submit" class="btn">Analyze</button>
@@ -106,9 +106,7 @@ const dropZone = document.getElementById("dropZone");
 const fileInput = document.getElementById("photo");
 const preview = document.getElementById("preview");
 
-dropZone.addEventListener("click", () => fileInput.click());
-
-// Allows dropping 
+// Allows dropping
 dropZone.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropZone.classList.add("dragover");
