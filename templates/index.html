@@ -47,9 +47,19 @@
   <div class="card">
   <h2>Today's Log</h2>
 
-  <form method="post" action="/clear">
-    <button type="submit">Clear Food</button> 
-  </form>
+  {% if entries %}
+  <form method="post" action="/delete">
+  <select name="timestamp">
+    {% for e in entries %}
+      <option value="{{ e.timestamp }}">
+        {{ e.timestamp[11:16] }} - {{ e.food }} ({{ e.calories }} cal)
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Delete Selected Meal</button>
+</form>
+{% endif %}
 
 
   {% set pct = total * 100 // goal %}

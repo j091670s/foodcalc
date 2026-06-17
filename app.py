@@ -88,11 +88,28 @@ def get_today_log():
                 entries.append(row)
     return entries
 
-@app.route('/clear', methods=['POST'])
-def clear_log():
-    if os.path.exists(LOG_FILE):
-        os.remove(LOG_FILE)
-    return redirect(url_for('index'))
+@app.route('/delete', methods=['POST'])
+def delete_meal():
+    timestamp = request.form["timestamp"]
+
+    rows = []
+
+    with open(LOG_FILE, newline='') as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            if row["timestamp"] != timestamp:
+                rows.append(row)
+
+    with open(LOG_FILE, "w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["timestamp", "food", "calories"]
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+    return redirect(url_for("index"))
 
 
 @app.route('/')
