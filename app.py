@@ -2,6 +2,8 @@ import base64
 import csv
 import os
 import re
+import calendar
+from datetime import date
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from openai import OpenAI
@@ -88,6 +90,20 @@ def get_today_log():
                 entries.append(row)
     return entries
 
+def get_all_entries():
+    if not os.path.exists(LOG_FILE):
+        return []
+    
+    entries = []
+    with open(LOG_FILE, newline='') as f:
+        reader = csv.DictReader(f)
+
+        for row in reader:
+            entries.append(row)
+            
+    return entries
+
+
 @app.route('/delete', methods=['POST'])
 def delete_meal():
     timestamp = request.form["timestamp"]
@@ -144,8 +160,27 @@ def index():
 
 ## connecting the different tabs
 @app.route('/calendar')
-def calendar():
-    return render_template('calendar.html')
+def calendar_view():
+    year = date.today().year
+    month = date.today().month
+
+    month_days = calendar.monthcalendar(year, month)
+
+    entries = get_today_log()
+
+    grouped = {}
+
+    for e in entries:
+        day = e.timestamp[:10]
+        grouped.setdefault(day, []).append(e)
+
+    return render_template(
+        "calendar.html",
+        month_days=month_days,
+        year=year,
+        month=month,
+        data=grouped
+    )
 
 @app.route('/history')
 def history():
@@ -188,4 +223,4 @@ def scan():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

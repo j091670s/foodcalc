@@ -333,3 +333,17 @@ body.login {
     background:#4CAF50;
     color:white;
 }
+
+/* Calendar */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  min-height: 90px;
+  background: white;
+  border-radius: 10px;
+  padding: 6px;
+}

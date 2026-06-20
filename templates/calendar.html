@@ -2,8 +2,30 @@
 
 {% block content %}
 
-<h1>Calendar</h1>
+<h1>{{ month }}/{{ year }}</h1>
 
+<div class="calendar-grid">
 
+{% for week in month_days %}
+    {% for day in week %}
+        <div class="day">
+            {% if day != 0 %}
+                <strong>{{ day }}</strong>
+
+                {% set key = "%04d-%02d-%02d" | format(year, month, day) %}
+
+                {% if key in data %}
+                    {% for meal in data[key] %}
+                        <div class="meal">
+                            {{ meal.food }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+</div>
 
 {% endblock %}
