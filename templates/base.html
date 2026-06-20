@@ -7,13 +7,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-<body>
     <nav class="navbar">
     <a href="/">Enter Food</a>
     <a href="/calendar">Calendar</a>
     <a href="/history">History</a>
     <a href="/stats">Statistics</a>
+    <form method="post" action="/logout" class="navbar-logout">
+      <button type="submit" class="btn-logout">Logout</button>
+    </form>
 </nav>
 
 <div class="container">

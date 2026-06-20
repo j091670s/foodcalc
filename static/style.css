@@ -333,3 +333,24 @@ body.login {
     background:#4CAF50;
     color:white;
 }
+
+.navbar-logout {
+    margin-left: auto;
+}
+
+.btn-logout {
+    background: transparent;
+    color: #e53e3e;
+    border: 1.5px solid #e53e3e;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.btn-logout:hover {
+    background: #e53e3e;
+    color: white;
+}

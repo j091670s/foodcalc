@@ -134,6 +134,13 @@ def login_page():
     return render_template('login.html')
 
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
+
+
+
 @app.route('/')
 def index():
     if 'user' not in session:
